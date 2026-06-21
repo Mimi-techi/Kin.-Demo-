@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kin — Impact Investing</title>
+<style>
+/* ── TOKENS ── */
+:root {
+  --green: #97ba5b;
+  --green-d: #6d8f38;
+  --green-l: #f0f6e4;
+  --green-m: #daedb8;
+  --navy: #111827;
+  --navy2: #1f2937;
+  --white: #ffffff;
+  --g50: #f9fafb;
+  --g100: #f3f4f6;
+  --g200: #e5e7eb;
+  --g300: #d1d5db;
+  --g400: #9ca3af;
+  --g500: #6b7280;
+  --g600: #4b5563;
+  --g700: #374151;
+  --g800: #1f2937;
+  --red: #ef4444;
+  --red-l: #fef2f2;
+  --amber: #f59e0b;
+  --amber-l: #fffbeb;
+  --blue: #3b82f6;
+  --blue-l: #eff6ff;
+  --purp: #8b5cf6;
+  --purp-l: #f5f3ff;
+  --r: 14px;
+  --r-sm: 10px;
+  --r-lg: 20px;
+  --r-full: 999px;
+  --sh: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,.1);
+  --sh-lg: 0 8px 32px rgba(0,0,0,.12);
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:#e5e7eb;}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+input{font-family:inherit;outline:none;border:none;}
+
+/* ── PHONE SHELL ── */
+.phone-shell {
+  width: 390px;
+  height: 844px;
+  background: var(--white);
+  border-radius: 44px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.1);
+  overflow: hidden;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Status bar */
+.status-bar {
+  height: 44px;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px 0;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.status-time{font-size:15px;font-weight:600;color:var(--navy);}
+.status-icons{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--navy);}
+
+/* Screen content */
+.screen-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.screen-scroll::-webkit-scrollbar{display:none;}
+
+/* Bottom tab bar */
+.tab-bar {
+  height: 80px;
+  background: var(--white);
+  border-top: 1px solid var(--g200);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 8px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-icon{font-size:22px;line-height:1;}
+.tab-label{font-size:10px;font-weight:500;color:var(--g400);}
+.tab-item.active .tab-label{color:var(--green-d);font-weight:700;}
+.tab-item.active .tab-icon{filter:none;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── COMMON COMPONENTS ── */
+.screen-header {
+  padding: 16px 20px 12px;
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.sh-label{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;}
+.sh-title{font-size:22px;font-weight:800;color:var(--navy);}
+
+.px{padding-left:20px;padding-right:20px;}
+.mb12{margin-bottom:12px;}
+.mb16{margin-bottom:16px;}
+.mb20{margin-bottom:20px;}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--g200);box-shadow:var(--sh);}
+.card-p{padding:16px;}
+.card-title{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+
+/* Pills / badges */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:var(--r-full);font-size:11px;font-weight:600;}
+.badge-green{background:var(--green-l);color:var(--green-d);}
+.badge-blue{background:var(--blue-l);color:#1d4ed8;}
+.badge-amber{background:var(--amber-l);color:#92400e;}
+.badge-red{background:var(--red-l);color:#991b1b;}
+.badge-purp{background:var(--purp-l);color:#5b21b6;}
+.badge-gray{background:var(--g100);color:var(--g600);}
+
+/* SDG pills */
+.sdg{display:inline-block;padding:2px 7px;border-radius:5px;background:#dbeafe;color:#1d4ed8;font-size:10px;font-weight:700;margin-right:3px;}
+
+/* ── DASHBOARD ── */
+#screen-home .hero-card {
+  margin: 0 20px 16px;
+  background: linear-gradient(135deg,#111827 0%,#1f2d42 60%,#1a3a28 100%);
+  border-radius: 22px;
+  padding: 22px 20px 20px;
+  box-shadow: var(--sh-lg);
+}
+.hero-greeting{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:3px;}
+.hero-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:14px;}
+.hero-total-label{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+.hero-total{font-size:38px;font-weight:800;color:#fff;line-height:1;letter-spacing:-1px;}
+.hero-change{font-size:13px;font-weight:600;color:var(--green);margin-top:4px;}
+.hero-row{display:flex;gap:10px;margin-top:16px;}
+.hero-mini{flex:1;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px;}
+.hero-mini-val{font-size:16px;font-weight:700;color:#fff;}
+.hero-mini-lbl{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+
+/* Interest banner */
+.interest-strip {
+  margin: 0 20px 14px;
+  background: linear-gradient(135deg,var(--green-l),var(--green-m));
+  border: 1.5px solid var(--green-m);
+  border-radius: 14px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.is-left .is-val{font-size:17px;font-weight:700;color:var(--green-d);}
+.is-left .is-lbl{font-size:10.5px;color:var(--g500);margin-top:1px;}
+.is-right{text-align:right;}
+.is-rate{font-size:24px;font-weight:800;color:var(--green-d);line-height:1;}
+.is-rate-lbl{font-size:10px;color:var(--g500);margin-top:2px;}
+
+/* Mini stats row */
+.stats-row{display:flex;gap:9px;margin:0 20px 14px;}
+.stat-mini{flex:1;background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:12px 11px;box-shadow:var(--sh);}
+.sm-val{font-size:18px;font-weight:700;color:var(--navy);}
+.sm-lbl{font-size:10px;color:var(--g400);margin-top:2px;font-weight:500;}
+.sm-up{font-size:10.5px;color:var(--green-d);font-weight:600;margin-top:3px;}
+.sm-neu{font-size:10.5px;color:var(--g400);font-weight:500;margin-top:3px;}
+
+/* Section labels */
+.sec-label{font-size:15px;font-weight:700;color:var(--navy);margin:0 20px 10px;}
+
+/* Chart */
+.chart-card{margin:0 20px 14px;}
+.chart-tabs{display:flex;gap:5px;margin-bottom:12px;}
+.ct-btn{padding:4px 11px;border-radius:var(--r-full);font-size:12px;font-weight:600;color:var(--g400);background:var(--g100);transition:all .14s;}
+.ct-btn.active{background:var(--green);color:#fff;}
+.chart-wrap{height:150px;position:relative;}
+.chart-svg{width:100%;height:100%;}
+
+/* Holdings list */
+.holding-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--g100);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .1s;
+}
+.holding-item:last-child{border-bottom:none;}
+.holding-item:active{background:var(--g50);}
+.hi-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.hi-name{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:1px;}
+.hi-sub{font-size:11.5px;color:var(--g400);}
+.hi-right{margin-left:auto;text-align:right;}
+.hi-val{font-size:14px;font-weight:700;color:var(--navy);}
+.hi-change{font-size:12px;font-weight:600;margin-top:1px;}
+
+/* Impact row */
+.impact-row{display:flex;gap:9px;margin:0 20px 14px;}
+.imp-card{flex:1;background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:12px 10px;text-align:center;box-shadow:var(--sh);}
+.imp-val{font-size:18px;font-weight:700;}
+.imp-lbl{font-size:9.5px;color:var(--g400);margin-top:3px;line-height:1.3;}
+
+/* ── EXPLORE ── */
+.search-bar-wrap{margin:0 20px 14px;position:relative;}
+.search-bar{width:100%;height:42px;background:var(--g100);border-radius:12px;padding:0 14px 0 38px;font-size:14px;color:var(--navy);}
+.search-bar::placeholder{color:var(--g400);}
+.search-bar:focus{background:var(--white);box-shadow:0 0 0 2px var(--green);}
+.search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+
+/* Filter chips scroll */
+.chips-scroll{overflow-x:auto;padding:0 20px 0;margin-bottom:12px;display:flex;gap:7px;-webkit-overflow-scrolling:touch;}
+.chips-scroll::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:var(--r-full);font-size:12.5px;font-weight:600;background:var(--white);border:1.5px solid var(--g200);color:var(--g600);transition:all .14s;white-space:nowrap;}
+.chip:active,.chip.active{background:var(--green);border-color:var(--green);color:#fff;}
+.chip.excl.active{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* Filter sections */
+.filter-section{margin:0 20px 14px;}
+.filter-sec-title{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:6px;}
+
+/* SDG grid */
+.sdg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:0 20px 14px;}
+.sdg-chip{padding:7px 8px;border-radius:9px;border:1.5px solid var(--g200);font-size:10.5px;font-weight:600;color:var(--g600);text-align:center;background:var(--white);cursor:pointer;transition:all .12s;-webkit-tap-highlight-color:transparent;}
+.sdg-chip.active{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;}
+
+/* Result cards */
+.result-card{margin:0 20px 10px;background:var(--white);border:1px solid var(--g200);border-radius:16px;padding:15px;box-shadow:var(--sh);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .14s;}
+.result-card:active{transform:scale(.98);box-shadow:none;}
+.rc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.rc-name{font-size:15px;font-weight:700;color:var(--navy);}
+.rc-ticker{font-size:11px;color:var(--g400);margin-top:1px;}
+.rc-score{text-align:right;}
+.rc-num{font-size:22px;font-weight:800;color:var(--green-d);}
+.rc-grade{font-size:10px;font-weight:700;background:var(--green-l);color:var(--green-d);padding:1px 7px;border-radius:4px;display:inline-block;margin-top:2px;}
+.rc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+.rc-foot{font-size:11px;color:var(--g400);border-top:1px solid var(--g100);padding-top:8px;}
+
+/* ── COMPANY DETAIL ── */
+.co-hero{background:linear-gradient(135deg,#111827,#1f2d42);padding:16px 20px 20px;}
+.co-back{display:flex;align-items:center;gap:5px;font-size:13.5px;color:rgba(255,255,255,.6);margin-bottom:14px;cursor:pointer;}
+.co-name-big{font-size:22px;font-weight:800;color:#fff;margin-bottom:2px;}
+.co-sub-txt{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;}
+.co-sdg-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+.co-sdg{padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);font-size:10.5px;font-weight:700;}
+.co-score-row{display:flex;align-items:center;justify-content:space-between;}
+.co-esg-num{font-size:44px;font-weight:800;color:#fff;line-height:1;letter-spacing:-1px;}
+.co-grade-badge{padding:4px 12px;border-radius:var(--r-full);background:var(--green);color:#fff;font-size:12px;font-weight:700;display:inline-block;margin-top:5px;}
+.co-rank-txt{font-size:10.5px;color:rgba(255,255,255,.45);margin-top:4px;}
+
+/* Pillar cards */
+.pillar-row{display:flex;gap:8px;margin:14px 20px;}
+.pillar-card{flex:1;background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:12px 10px;box-shadow:var(--sh);}
+.pc-name{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.pc-val{font-size:20px;font-weight:800;}
+.pc-bar{height:4px;background:var(--g200);border-radius:2px;margin-top:8px;overflow:hidden;}
+.pc-fill{height:100%;border-radius:2px;}
+
+/* Detail sections */
+.detail-section{margin:0 20px 12px;}
+.kv-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--g100);}
+.kv-row:last-child{border-bottom:none;}
+.kk{font-size:13px;color:var(--g500);}
+.kv2{font-size:13px;font-weight:600;color:var(--g700);}
+.kv2.green{color:var(--green-d);}
+
+/* Greenwash flag */
+.gw-flag{margin:0 20px 12px;border-radius:12px;padding:12px 14px;}
+.gw-flag.low{background:var(--green-l);border:1px solid var(--green-m);}
+.gw-flag.med{background:var(--amber-l);border:1px solid #fde68a;}
+.gwf-title{font-size:13.5px;font-weight:700;margin-bottom:4px;}
+.gw-flag.low .gwf-title{color:var(--green-d);}
+.gw-flag.med .gwf-title{color:#92400e;}
+.gwf-body{font-size:12px;color:var(--g600);line-height:1.5;}
+
+/* Peer bars */
+.peer-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.peer-name{font-size:12px;color:var(--g600);width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.peer-bg{flex:1;height:7px;background:var(--g200);border-radius:4px;overflow:hidden;}
+.peer-fill{height:100%;border-radius:4px;background:var(--green);}
+.peer-fill.me{background:var(--green-d);}
+.peer-val{font-size:11.5px;font-weight:600;color:var(--g700);width:30px;text-align:right;}
+
+/* Insights */
+.insight-card{background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:12px 13px;margin-bottom:8px;}
+.insight-title{font-size:12.5px;font-weight:700;color:var(--g700);margin-bottom:6px;}
+.insight-item{font-size:12px;color:var(--g500);padding:3px 0 3px 12px;position:relative;line-height:1.4;}
+.insight-item::before{content:'•';position:absolute;left:0;color:var(--green);font-weight:700;}
+
+/* ── NEWS ── */
+.news-card{margin:0 20px 10px;background:var(--white);border:1px solid var(--g200);border-radius:16px;padding:15px;box-shadow:var(--sh);}
+.n-tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:var(--r-full);margin-bottom:8px;}
+.nt-climate{background:var(--green-l);color:var(--green-d);}
+.nt-market{background:var(--blue-l);color:#1d4ed8;}
+.nt-reg{background:var(--purp-l);color:#5b21b6;}
+.nt-soc{background:#fff7ed;color:#c2410c;}
+.nt-energy{background:#fefce8;color:#854d0e;}
+.n-headline{font-size:14.5px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.35;}
+.n-body{font-size:12.5px;color:var(--g500);line-height:1.55;margin-bottom:9px;}
+.n-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--g400);}
+.n-holding{background:var(--green-l);color:var(--green-d);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);}
+</style>
+</head>
+<body>
+
+<div class="phone-shell">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <span>●●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- Screen scroll area -->
+  <div class="screen-scroll" id="scroll-area">
+
+    <!-- ══════════════════════ HOME ══════════════════════ -->
+    <div class="screen active" id="screen-home">
+
+      <!-- Top bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 14px;">
+        <div>
+          <div style="font-size:26px;font-weight:900;color:var(--navy);letter-spacing:-.5px;line-height:1;">K<span style="font-size:22px;font-weight:800;">in</span><span style="color:var(--green);font-size:28px;">.</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;">AK</div>
+        </div>
+      </div>
+
+      <!-- Hero card -->
+      <div class="hero-card">
+        <div class="hero-greeting">Good morning 👋</div>
+        <div class="hero-name">Aleksandra</div>
+        <div class="hero-total-label">Total portfolio value</div>
+        <div class="hero-total">€5,247</div>
+        <div class="hero-change">↑ +€247 · +4.9% since you joined</div>
+        <div class="hero-row">
+          <div class="hero-mini">
+            <div class="hero-mini-val">€4,400</div>
+            <div class="hero-mini-lbl">Invested</div>
+          </div>
+          <div class="hero-mini">
+            <div class="hero-mini-val">1.8t</div>
+            <div class="hero-mini-lbl">CO₂ avoided</div>
+          </div>
+          <div class="hero-mini">
+            <div class="hero-mini-val">82.1</div>
+            <div class="hero-mini-lbl">Avg ESG</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash interest -->
+      <div class="interest-strip">
+        <div class="is-left">
+          <div class="is-val">€847 on deposit</div>
+          <div class="is-lbl">Earning ECB interest rate · green money market</div>
+        </div>
+        <div class="is-right">
+          <div class="is-rate">2.25%</div>
+          <div class="is-rate-lbl">= €1.59 / month</div>
+        </div>
+      </div>
+
+      <!-- Performance chart -->
+      <div class="sec-label">Performance</div>
+      <div class="chart-card card card-p mb16">
+        <div class="chart-tabs">
+          <button class="ct-btn active" onclick="setPeriod(this)">1M</button>
+          <button class="ct-btn" onclick="setPeriod(this)">3M</button>
+          <button class="ct-btn" onclick="setPeriod(this)">6M</button>
+          <button class="ct-btn" onclick="setPeriod(this)">1Y</button>
+        </div>
+        <div class="chart-wrap">
+          <svg class="chart-svg" viewBox="0 0 340 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#97ba5b" stop-opacity=".25"/>
+                <stop offset="100%" stop-color="#97ba5b" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="35" x2="340" y2="35" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="70" x2="340" y2="70" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="105" x2="340" y2="105" stroke="#f3f4f6" stroke-width="1"/>
+            <path d="M0,118 C40,112 70,105 110,95 C150,85 180,78 220,65 C260,52 300,42 340,30" fill="url(#cg)"/>
+            <path d="M0,118 C40,112 70,105 110,95 C150,85 180,78 220,65 C260,52 300,42 340,30" fill="none" stroke="#97ba5b" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M0,122 C80,119 160,114 240,110 C300,107 330,106 340,105" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <circle cx="340" cy="30" r="4" fill="#97ba5b"/>
+            <text x="4" y="134" font-size="10" fill="#9ca3af">Jan</text>
+            <text x="90" y="134" font-size="10" fill="#9ca3af">Feb</text>
+            <text x="180" y="134" font-size="10" fill="#9ca3af">Mar</text>
+            <text x="268" y="134" font-size="10" fill="#9ca3af">Apr</text>
+            <text x="298" y="26" font-size="10" fill="#6d8f38" font-weight="600">+5.6%</text>
+            <text x="278" y="102" font-size="9" fill="#9ca3af">MSCI</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Impact mini row -->
+      
+      <!-- ESG Score Development Chart -->
+      <div class="sec-label">Impact Development</div>
+      <div class="card card-p mb16" style="margin:0 20px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div class="card-title" style="margin-bottom:0;">Portfolio ESG Score</div>
+          <span style="font-size:11px;background:var(--green-l);color:var(--green-d);font-weight:700;padding:2px 9px;border-radius:99px;">▲ +4.2 pts</span>
+        </div>
+        <div style="font-size:11px;color:var(--g500);margin-bottom:12px;">How your impact score has grown since you joined</div>
+        <div style="height:120px;position:relative;">
+          <svg viewBox="0 0 340 110" width="100%" height="110" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="eg1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#97ba5b" stop-opacity=".2"/>
+                <stop offset="100%" stop-color="#97ba5b" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="22" x2="340" y2="22" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="55" x2="340" y2="55" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="88" x2="340" y2="88" stroke="#f3f4f6" stroke-width="1"/>
+            <text x="0" y="20" font-size="9" fill="#9ca3af">90</text>
+            <text x="0" y="53" font-size="9" fill="#9ca3af">82</text>
+            <text x="0" y="86" font-size="9" fill="#9ca3af">75</text>
+            <!-- ESG line: starts ~77.9, ends ~82.1 -->
+            <path d="M18,80 C50,76 80,72 120,65 C160,58 200,52 250,44 C285,39 305,36 320,33" fill="url(#eg1)"/>
+            <path d="M18,80 C50,76 80,72 120,65 C160,58 200,52 250,44 C285,39 305,36 320,33" fill="none" stroke="#97ba5b" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Milestone dots -->
+            <circle cx="120" cy="65" r="3.5" fill="#fff" stroke="#97ba5b" stroke-width="2"/>
+            <circle cx="250" cy="44" r="3.5" fill="#fff" stroke="#97ba5b" stroke-width="2"/>
+            <circle cx="320" cy="33" r="4.5" fill="#97ba5b"/>
+            <!-- Labels -->
+            <text x="296" y="29" font-size="9" fill="#6d8f38" font-weight="700">82.1</text>
+            <text x="100" y="61" font-size="8" fill="#9ca3af">Added Vestas</text>
+            <text x="228" y="40" font-size="8" fill="#9ca3af">+Novo</text>
+            <text x="12" y="100" font-size="9" fill="#9ca3af">Jan</text>
+            <text x="90" y="100" font-size="9" fill="#9ca3af">Feb</text>
+            <text x="168" y="100" font-size="9" fill="#9ca3af">Mar</text>
+            <text x="248" y="100" font-size="9" fill="#9ca3af">Apr</text>
+            <text x="305" y="100" font-size="9" fill="#9ca3af">May</text>
+          </svg>
+        </div>
+        <!-- Pillar mini bars -->
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:9.5px;color:var(--g400);margin-bottom:3px;">Environmental</div>
+            <div style="height:4px;background:var(--g200);border-radius:2px;overflow:hidden;"><div style="width:76%;height:100%;background:#22c55e;border-radius:2px;"></div></div>
+            <div style="font-size:11px;font-weight:700;color:#16a34a;margin-top:2px;">76.4</div>
+          </div>
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:9.5px;color:var(--g400);margin-bottom:3px;">Social</div>
+            <div style="height:4px;background:var(--g200);border-radius:2px;overflow:hidden;"><div style="width:88%;height:100%;background:#3b82f6;border-radius:2px;"></div></div>
+            <div style="font-size:11px;font-weight:700;color:#2563eb;margin-top:2px;">88.3</div>
+          </div>
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:9.5px;color:var(--g400);margin-bottom:3px;">Governance</div>
+            <div style="height:4px;background:var(--g200);border-radius:2px;overflow:hidden;"><div style="width:81%;height:100%;background:#97ba5b;border-radius:2px;"></div></div>
+            <div style="font-size:11px;font-weight:700;color:var(--green-d);margin-top:2px;">81.7</div>
+          </div>
+        </div>
+      </div>
+
+<div class="sec-label">Your Impact</div>
+      <div class="impact-row mb16">
+        <div class="imp-card">
+          <div class="imp-val" style="color:var(--green-d);">1.8t</div>
+          <div class="imp-lbl">CO₂ avoided</div>
+        </div>
+        <div class="imp-card">
+          <div class="imp-val" style="color:#1d4ed8;">78%</div>
+          <div class="imp-lbl">Green revenue</div>
+        </div>
+        <div class="imp-card">
+          <div class="imp-val" style="color:var(--purp);">5</div>
+          <div class="imp-lbl">SDGs covered</div>
+        </div>
+        <div class="imp-card">
+          <div class="imp-val" style="color:var(--green-d);">0</div>
+          <div class="imp-lbl">Greenwash flags</div>
+        </div>
+      </div>
+
+
+      <!-- Impact chart -->
+      <div class="card card-p mb16" style="margin:0 20px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div class="card-title" style="margin-bottom:0;">Your CO&#8322; Impact</div>
+          <div style="font-size:10.5px;color:var(--g400);">vs benchmark investor</div>
+        </div>
+        <div style="font-size:11px;color:var(--g500);margin-bottom:12px;">Cumulative CO&#8322; avoided since you joined Kin (tonnes)</div>
+        <div style="height:130px;position:relative;">
+          <svg viewBox="0 0 340 120" width="100%" height="120" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#97ba5b" stop-opacity=".3"/>
+                <stop offset="100%" stop-color="#97ba5b" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="ig2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d1d5db" stop-opacity=".4"/>
+                <stop offset="100%" stop-color="#d1d5db" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid -->
+            <line x1="0" y1="30" x2="340" y2="30" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="60" x2="340" y2="60" stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" y1="90" x2="340" y2="90" stroke="#f3f4f6" stroke-width="1"/>
+            <!-- Y labels -->
+            <text x="0" y="28" font-size="9" fill="#9ca3af">2t</text>
+            <text x="0" y="58" font-size="9" fill="#9ca3af">1t</text>
+            <text x="0" y="88" font-size="9" fill="#9ca3af">0</text>
+            <!-- Benchmark fill (grey) -->
+            <path d="M18,90 C60,89 100,87 150,84 C200,81 260,79 320,76 L320,110 L18,110 Z" fill="url(#ig2)"/>
+            <path d="M18,90 C60,89 100,87 150,84 C200,81 260,79 320,76" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <!-- Your impact fill (green) -->
+            <path d="M18,90 C50,85 80,78 120,66 C160,54 200,44 250,34 C285,27 310,24 320,22 L320,110 L18,110 Z" fill="url(#ig1)"/>
+            <path d="M18,90 C50,85 80,78 120,66 C160,54 200,44 250,34 C285,27 310,24 320,22" fill="none" stroke="#97ba5b" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- End dot -->
+            <circle cx="320" cy="22" r="4" fill="#97ba5b"/>
+            <text x="296" y="18" font-size="9" fill="#6d8f38" font-weight="700">1.8t</text>
+            <!-- Benchmark end label -->
+            <text x="294" y="73" font-size="9" fill="#9ca3af">avg 0.6t</text>
+            <!-- X axis labels -->
+            <text x="12" y="108" font-size="9" fill="#9ca3af">Jan</text>
+            <text x="90" y="108" font-size="9" fill="#9ca3af">Feb</text>
+            <text x="168" y="108" font-size="9" fill="#9ca3af">Mar</text>
+            <text x="248" y="108" font-size="9" fill="#9ca3af">Apr</text>
+            <text x="305" y="108" font-size="9" fill="#9ca3af">May</text>
+          </svg>
+        </div>
+        <!-- Legend -->
+        <div style="display:flex;gap:16px;margin-top:4px;">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <div style="width:16px;height:3px;background:var(--green);border-radius:2px;"></div>
+            <span style="font-size:11px;color:var(--g500);font-weight:600;">Your portfolio</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <div style="width:16px;height:2px;background:var(--g300);border-radius:2px;border-top:1px dashed var(--g300);"></div>
+            <span style="font-size:11px;color:var(--g400);">Avg investor</span>
+          </div>
+          <div style="margin-left:auto;font-size:11px;color:var(--green-d);font-weight:700;">3× more impact</div>
+        </div>
+      </div>
+
+      <!-- Holdings -->
+      <div class="sec-label">Holdings</div>
+      <div class="card mb20" style="margin:0 20px 24px;overflow:hidden;">
+        <div class="holding-item" onclick="showCo('schneider')">
+          <div class="hi-icon" style="background:#fef3c7;">⚡</div>
+          <div><div class="hi-name">Schneider Electric</div><div class="hi-sub">SU · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">83.6 A</span> · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">Low risk</span></div></div>
+          <div class="hi-right"><div class="hi-val">€1,371</div><div class="hi-change" style="color:var(--green-d);">+14.2%</div></div>
+        </div>
+        <div class="holding-item" onclick="showCo('vestas')">
+          <div class="hi-icon" style="background:#d1fae5;">🌬</div>
+          <div><div class="hi-name">Vestas Wind</div><div class="hi-sub">VWS · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">88.1 A+</span> · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">Low risk</span></div></div>
+          <div class="hi-right"><div class="hi-val">€1,196</div><div class="hi-change" style="color:var(--green-d);">+8.7%</div></div>
+        </div>
+        <div class="holding-item" onclick="showCo('novo')">
+          <div class="hi-icon" style="background:#f5f3ff;">💊</div>
+          <div><div class="hi-name">Novo Nordisk</div><div class="hi-sub">NOVO · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">81.2 A</span> · <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">Low risk</span></div></div>
+          <div class="hi-right"><div class="hi-val">€1,282</div><div class="hi-change" style="color:var(--green-d);">+6.8%</div></div>
+        </div>
+        <div class="holding-item" onclick="showCo('asml')">
+          <div class="hi-icon" style="background:#eff6ff;">🔬</div>
+          <div><div class="hi-name">ASML</div><div class="hi-sub">ASML · <span class="badge badge-blue" style="font-size:10px;padding:1px 6px;">72.8 B+</span> · <span class="badge badge-amber" style="font-size:10px;padding:1px 6px;">Med risk</span></div></div>
+          <div class="hi-right"><div class="hi-val">€1,092</div><div class="hi-change" style="color:var(--green-d);">+21.3%</div></div>
+        </div>
+      </div>
+
+    </div><!-- /home -->
+
+    <!-- ══════════════════════ EXPLORE ══════════════════════ -->
+    <div class="screen" id="screen-explore">
+      <div style="padding:10px 20px 14px;"><div style="font-size:22px;font-weight:800;color:var(--navy);">Explore</div><div style="font-size:13px;color:var(--g400);margin-top:2px;">Find impact investments</div></div>
+
+      <div class="search-bar-wrap">
+        <span class="search-ico">🔍</span>
+        <input class="search-bar" type="text" placeholder="Search companies or themes…" oninput="filterResults(this.value)">
+      </div>
+
+      <!-- Sector chips -->
+      <div class="filter-section">
+        <div class="filter-sec-title">Sector</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleChip(this,'sector')">All</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Technology</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Industrials</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Healthcare</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Energy</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Utilities</button>
+          <button class="chip" onclick="toggleChip(this,'sector')">Consumer</button>
+        </div>
+      </div>
+
+      <!-- Geography chips -->
+      <div class="filter-section">
+        <div class="filter-sec-title">Geography</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleChip(this,'geo')">All</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">Europe</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">Denmark</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">France</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">UK</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">Germany</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">Spain</button>
+          <button class="chip" onclick="toggleChip(this,'geo')">United States</button>
+        </div>
+      </div>
+
+      <!-- ESG + risk -->
+      <div class="filter-section">
+        <div class="filter-sec-title">ESG Score</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleChip(this,'esg')">Any</button>
+          <button class="chip" onclick="toggleChip(this,'esg')">ESG 70+</button>
+          <button class="chip" onclick="toggleChip(this,'esg')">ESG 80+</button>
+          <button class="chip" onclick="toggleChip(this,'esg')">ESG 90+</button>
+          <button class="chip" onclick="toggleChip(this,'esg')">B Corp only</button>
+          <button class="chip" onclick="toggleChip(this,'esg')">Top performers</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-sec-title">Greenwashing Risk</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleChip(this,'gw')">Any</button>
+          <button class="chip" onclick="toggleChip(this,'gw')">Low only</button>
+          <button class="chip" onclick="toggleChip(this,'gw')">Exclude Medium</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-sec-title">SFDR / EU Taxonomy</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleChip(this,'sfdr')">All</button>
+          <button class="chip" onclick="toggleChip(this,'sfdr')">Article 8</button>
+          <button class="chip" onclick="toggleChip(this,'sfdr')">Article 9</button>
+          <button class="chip" onclick="toggleChip(this,'sfdr')">EU Taxonomy ✓</button>
+        </div>
+      </div>
+
+      <!-- Impact themes -->
+      <div class="filter-section">
+        <div class="filter-sec-title">Impact Themes</div>
+        <div class="chip-wrap">
+          <button class="chip active" onclick="toggleTheme(this)">🌍 All</button>
+          <button class="chip" onclick="toggleTheme(this)">🌡 Climate</button>
+          <button class="chip" onclick="toggleTheme(this)">🌿 Biodiversity</button>
+          <button class="chip" onclick="toggleTheme(this)">🤝 Inclusion</button>
+          <button class="chip" onclick="toggleTheme(this)">💰 Financial inclusion</button>
+          <button class="chip" onclick="toggleTheme(this)">🏥 Healthcare access</button>
+          <button class="chip" onclick="toggleTheme(this)">⚡ Clean energy</button>
+          <button class="chip" onclick="toggleTheme(this)">♻️ Circular economy</button>
+          <button class="chip" onclick="toggleTheme(this)">🎓 Education</button>
+          <button class="chip" onclick="toggleTheme(this)">💧 Water</button>
+        </div>
+      </div>
+
+      <!-- Exclusions -->
+      <div class="filter-section">
+        <div class="filter-sec-title">Exclusions</div>
+        <div class="chip-wrap">
+          <button class="chip excl" onclick="this.classList.toggle('active')">Exclude fossil fuels</button>
+          <button class="chip excl" onclick="this.classList.toggle('active')">Exclude tobacco</button>
+          <button class="chip excl" onclick="this.classList.toggle('active')">Exclude weapons</button>
+          <button class="chip excl" onclick="this.classList.toggle('active')">Exclude gambling</button>
+          <button class="chip excl" onclick="this.classList.toggle('active')">Exclude alcohol</button>
+        </div>
+      </div>
+
+      <!-- SDGs -->
+      <div class="filter-section">
+        <div class="filter-sec-title">SDG Alignment</div>
+      </div>
+      <div class="sdg-grid">
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 1<br><span style="font-weight:400;font-size:9px;">No Poverty</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 2<br><span style="font-weight:400;font-size:9px;">Zero Hunger</span></button>
+        <button class="sdg-chip active" onclick="this.classList.toggle('active')">SDG 3<br><span style="font-weight:400;font-size:9px;">Health</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 4<br><span style="font-weight:400;font-size:9px;">Education</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 5<br><span style="font-weight:400;font-size:9px;">Gender</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 6<br><span style="font-weight:400;font-size:9px;">Clean Water</span></button>
+        <button class="sdg-chip active" onclick="this.classList.toggle('active')">SDG 7<br><span style="font-weight:400;font-size:9px;">Clean Energy</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 8<br><span style="font-weight:400;font-size:9px;">Decent Work</span></button>
+        <button class="sdg-chip active" onclick="this.classList.toggle('active')">SDG 9<br><span style="font-weight:400;font-size:9px;">Innovation</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 10<br><span style="font-weight:400;font-size:9px;">Inequality</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 11<br><span style="font-weight:400;font-size:9px;">Cities</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 12<br><span style="font-weight:400;font-size:9px;">Consumption</span></button>
+        <button class="sdg-chip active" onclick="this.classList.toggle('active')">SDG 13<br><span style="font-weight:400;font-size:9px;">Climate</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 14<br><span style="font-weight:400;font-size:9px;">Ocean</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 15<br><span style="font-weight:400;font-size:9px;">Land</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 16<br><span style="font-weight:400;font-size:9px;">Peace</span></button>
+        <button class="sdg-chip" onclick="this.classList.toggle('active')">SDG 17<br><span style="font-weight:400;font-size:9px;">Partnerships</span></button>
+      </div>
+
+      
+      <!-- Recommended -->
+      <div style="margin:0 20px 12px;">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:10px;">Recommended for you</div>
+        <div style="overflow-x:auto;display:flex;gap:10px;padding-bottom:4px;" id="rec-scroll">
+          <!-- Rec card 1 -->
+          <div onclick="showCo('vestas')" style="flex-shrink:0;width:170px;background:var(--white);border:1px solid var(--g200);border-radius:14px;padding:13px;cursor:pointer;box-shadow:var(--sh);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:15px;">🌬</div>
+              <span style="font-size:11px;font-weight:700;background:var(--green-l);color:var(--green-d);padding:2px 7px;border-radius:99px;">88.1 A+</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:1px;">Vestas Wind</div>
+            <div style="font-size:10.5px;color:var(--g400);margin-bottom:7px;">Denmark · Energy</div>
+            <div style="font-size:10.5px;color:var(--green-d);font-weight:600;">⚡ Clean energy · SDG 7</div>
+            <div style="font-size:10px;color:var(--g400);margin-top:3px;">Matches: Climate filter</div>
+          </div>
+          <!-- Rec card 2 -->
+          <div onclick="showCo('iberdrola')" style="flex-shrink:0;width:170px;background:var(--white);border:1px solid var(--g200);border-radius:14px;padding:13px;cursor:pointer;box-shadow:var(--sh);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:15px;">☀️</div>
+              <span style="font-size:11px;font-weight:700;background:var(--green-l);color:var(--green-d);padding:2px 7px;border-radius:99px;">84.9 A</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:1px;">Iberdrola</div>
+            <div style="font-size:10.5px;color:var(--g400);margin-bottom:7px;">Spain · Utilities</div>
+            <div style="font-size:10.5px;color:var(--green-d);font-weight:600;">⚡ Clean energy · SDG 13</div>
+            <div style="font-size:10px;color:var(--g400);margin-top:3px;">EU Taxonomy aligned</div>
+          </div>
+          <!-- Rec card 3 -->
+          <div onclick="showCo('orsted')" style="flex-shrink:0;width:170px;background:var(--white);border:1px solid var(--g200);border-radius:14px;padding:13px;cursor:pointer;box-shadow:var(--sh);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;font-size:15px;">🌊</div>
+              <span style="font-size:11px;font-weight:700;background:var(--green-l);color:var(--green-d);padding:2px 7px;border-radius:99px;">79.4 A-</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:1px;">Ørsted</div>
+            <div style="font-size:10.5px;color:var(--g400);margin-bottom:7px;">Denmark · Energy</div>
+            <div style="font-size:10.5px;color:var(--green-d);font-weight:600;">🌿 Biodiversity · SDG 15</div>
+            <div style="font-size:10px;color:var(--g400);margin-top:3px;">98% renewable energy</div>
+          </div>
+          <!-- Rec card 4 -->
+          <div onclick="showCo('novo')" style="flex-shrink:0;width:170px;background:var(--white);border:1px solid var(--g200);border-radius:14px;padding:13px;cursor:pointer;box-shadow:var(--sh);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;font-size:15px;">💊</div>
+              <span style="font-size:11px;font-weight:700;background:var(--green-l);color:var(--green-d);padding:2px 7px;border-radius:99px;">81.2 A</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:1px;">Novo Nordisk</div>
+            <div style="font-size:10.5px;color:var(--g400);margin-bottom:7px;">Denmark · Healthcare</div>
+            <div style="font-size:10.5px;color:var(--purp);font-weight:600;">🏥 Healthcare · SDG 3</div>
+            <div style="font-size:10px;color:var(--g400);margin-top:3px;">Social score 91.4</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:15px;font-weight:700;color:var(--navy);padding:0 20px;margin-bottom:10px;">All companies</div>
+<div style="font-size:12px;color:var(--g400);padding:0 20px;margin-bottom:10px;" id="res-count">6 companies match</div>
+
+      <!-- Results -->
+      <div id="res-list">
+        <div class="result-card" onclick="showCo('schneider')">
+          <div class="rc-top"><div><div class="rc-name">Schneider Electric</div><div class="rc-ticker">SU · France · Industrials</div></div><div class="rc-score"><div class="rc-num">83.6</div><div class="rc-grade">A</div></div></div>
+          <div class="rc-tags"><span class="badge badge-green">Clean Energy</span><span class="badge badge-green">EU Taxonomy ✓</span><span class="badge badge-green">Low risk</span></div>
+          <div class="rc-foot">SDG 7 · SDG 9 · SDG 13 · Green revenue 74% · $191B cap</div>
+        </div>
+        <div class="result-card" onclick="showCo('vestas')">
+          <div class="rc-top"><div><div class="rc-name">Vestas Wind Systems</div><div class="rc-ticker">VWS · Denmark · Energy</div></div><div class="rc-score"><div class="rc-num">88.1</div><div class="rc-grade">A+</div></div></div>
+          <div class="rc-tags"><span class="badge badge-green">Climate</span><span class="badge badge-green">100% Renewable</span><span class="badge badge-green">Low risk</span></div>
+          <div class="rc-foot">SDG 7 · SDG 13 · Offshore wind leader · $18B cap</div>
+        </div>
+        <div class="result-card" onclick="showCo('novo')">
+          <div class="rc-top"><div><div class="rc-name">Novo Nordisk</div><div class="rc-ticker">NOVO-B · Denmark · Healthcare</div></div><div class="rc-score"><div class="rc-num">81.2</div><div class="rc-grade">A</div></div></div>
+          <div class="rc-tags"><span class="badge badge-purp">Healthcare Access</span><span class="badge badge-green">Low risk</span></div>
+          <div class="rc-foot">SDG 3 · SDG 5 · Social score 91.4 · $312B cap</div>
+        </div>
+        <div class="result-card" onclick="showCo('orsted')">
+          <div class="rc-top"><div><div class="rc-name">Ørsted</div><div class="rc-ticker">ORSTED · Denmark · Energy</div></div><div class="rc-score"><div class="rc-num">79.4</div><div class="rc-grade">A-</div></div></div>
+          <div class="rc-tags"><span class="badge badge-green">Clean Energy</span><span class="badge badge-green">Biodiversity</span><span class="badge badge-green">Low risk</span></div>
+          <div class="rc-foot">SDG 7 · SDG 13 · SDG 15 · Offshore wind</div>
+        </div>
+        <div class="result-card" onclick="showCo('asml')">
+          <div class="rc-top"><div><div class="rc-name">ASML</div><div class="rc-ticker">ASML · Netherlands · Tech</div></div><div class="rc-score"><div class="rc-num">72.8</div><div class="rc-grade" style="background:var(--blue-l);color:#1d4ed8;">B+</div></div></div>
+          <div class="rc-tags"><span class="badge badge-blue">Innovation</span><span class="badge badge-amber">Medium risk</span></div>
+          <div class="rc-foot">SDG 9 · Semiconductor equipment · $260B cap</div>
+        </div>
+        <div class="result-card" onclick="showCo('iberdrola')">
+          <div class="rc-top"><div><div class="rc-name">Iberdrola</div><div class="rc-ticker">IBE · Spain · Utilities</div></div><div class="rc-score"><div class="rc-num">84.9</div><div class="rc-grade">A</div></div></div>
+          <div class="rc-tags"><span class="badge badge-green">Clean Energy</span><span class="badge badge-green">EU Taxonomy ✓</span><span class="badge badge-green">Low risk</span></div>
+          <div class="rc-foot">SDG 7 · SDG 13 · Renewables 82% · $88B cap</div>
+        </div>
+      </div>
+      <div style="height:20px;"></div>
+    </div><!-- /explore -->
+
+    <!-- ══════════════════════ COMPANY DETAIL ══════════════════════ -->
+    <div class="screen" id="screen-company">
+      <div class="co-hero">
+        <div class="co-back" onclick="goBack()">← Back</div>
+        <div class="co-name-big" id="co-name">Schneider Electric</div>
+        <div class="co-sub-txt" id="co-sub">SU · Euronext Paris · Industrials · France</div>
+        <div class="co-sdg-row" id="co-sdgs"></div>
+        <div class="co-score-row">
+          <div>
+            <div class="co-esg-num" id="co-esg">83.6</div>
+            <div class="co-grade-badge" id="co-grade">Grade A</div>
+            <div class="co-rank-txt" id="co-rank">Ranked #2 of 10 peers · France</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10.5px;color:rgba(255,255,255,.45);margin-bottom:5px;">LSEG ESG Score</div>
+            <div id="co-lseg-detail" style="font-size:11px;color:rgba(255,255,255,.55);line-height:1.6;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar cards -->
+      <div class="pillar-row">
+        <div class="pillar-card"><div class="pc-name">Environmental</div><div class="pc-val" style="color:#16a34a;" id="co-e">69.0</div><div class="pc-bar"><div class="pc-fill" id="co-ebar" style="background:#22c55e;width:69%"></div></div></div>
+        <div class="pillar-card"><div class="pc-name">Social</div><div class="pc-val" style="color:var(--blue);" id="co-s">92.6</div><div class="pc-bar"><div class="pc-fill" id="co-sbar" style="background:var(--blue);width:92.6%"></div></div></div>
+        <div class="pillar-card"><div class="pc-name">Governance</div><div class="pc-val" style="color:var(--green-d);" id="co-g">89.3</div><div class="pc-bar"><div class="pc-fill" id="co-gbar" style="background:var(--green);width:89.3%"></div></div></div>
+      </div>
+
+      <!-- Price chart -->
+      <div class="detail-section">
+        <div class="card card-p">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="card-title" style="margin-bottom:0;">Price Performance</div>
+            <div style="display:flex;gap:5px;" id="price-tabs">
+              <button class="ct-btn active" style="font-size:11px;padding:3px 9px;" onclick="setPricePeriod(this,'1M')">1M</button>
+              <button class="ct-btn" style="font-size:11px;padding:3px 9px;" onclick="setPricePeriod(this,'3M')">3M</button>
+              <button class="ct-btn" style="font-size:11px;padding:3px 9px;" onclick="setPricePeriod(this,'6M')">6M</button>
+              <button class="ct-btn" style="font-size:11px;padding:3px 9px;" onclick="setPricePeriod(this,'1Y')">1Y</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px;">
+            <span style="font-size:22px;font-weight:800;color:var(--navy);" id="co-price">€224.80</span>
+            <span style="font-size:13px;font-weight:600;color:var(--green-d);" id="co-price-chg">+18.4% YTD</span>
+          </div>
+          <div style="height:110px;">
+            <svg viewBox="0 0 340 100" width="100%" height="100" preserveAspectRatio="none" id="price-svg">
+              <defs>
+                <linearGradient id="pg1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#97ba5b" stop-opacity=".2"/>
+                  <stop offset="100%" stop-color="#97ba5b" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="25" x2="340" y2="25" stroke="#f3f4f6" stroke-width="1"/>
+              <line x1="0" y1="55" x2="340" y2="55" stroke="#f3f4f6" stroke-width="1"/>
+              <line x1="0" y1="82" x2="340" y2="82" stroke="#f3f4f6" stroke-width="1"/>
+              <path id="price-fill" d="M0,75 C40,72 70,65 110,55 C150,45 190,38 230,28 C270,20 305,16 340,13" fill="url(#pg1)"/>
+              <path id="price-line" d="M0,75 C40,72 70,65 110,55 C150,45 190,38 230,28 C270,20 305,16 340,13" fill="none" stroke="#97ba5b" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="340" cy="13" r="4" fill="#97ba5b"/>
+              <text x="10" y="92" font-size="9" fill="#9ca3af" id="pc-x1">Jan</text>
+              <text x="100" y="92" font-size="9" fill="#9ca3af" id="pc-x2">Feb</text>
+              <text x="195" y="92" font-size="9" fill="#9ca3af" id="pc-x3">Mar</text>
+              <text x="285" y="92" font-size="9" fill="#9ca3af" id="pc-x4">Apr</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <!-- Financial -->
+      <div class="detail-section">
+        <div class="card card-p">
+          <div class="card-title">Financial Data</div>
+          <div class="kv-row"><span class="kk">Market Cap</span><span class="kv2" id="co-mktcap">$191.2B</span></div>
+          <div class="kv-row"><span class="kk">Revenue</span><span class="kv2" id="co-rev">$45.4B</span></div>
+          <div class="kv-row"><span class="kk">P/E Ratio</span><span class="kv2" id="co-pe">39.6×</span></div>
+          <div class="kv-row"><span class="kk">Dividend Yield</span><span class="kv2" id="co-div">1.45%</span></div>
+          <div class="kv-row"><span class="kk">1Y Performance</span><span class="kv2 green" id="co-perf">+18.4%</span></div>
+          <div class="kv-row"><span class="kk">SFDR</span><span class="kv2">Article 9</span></div>
+        </div>
+      </div>
+
+      <!-- Impact -->
+      <div class="detail-section">
+        <div class="card card-p">
+          <div class="card-title">Impact Data</div>
+          <div class="kv-row"><span class="kk">Carbon Intensity</span><span class="kv2 green" id="co-carbon">Low · 110.91</span></div>
+          <div class="kv-row"><span class="kk">Green Revenue</span><span class="kv2" id="co-greenrev">74%</span></div>
+          <div class="kv-row"><span class="kk">Renewable Energy</span><span class="kv2" id="co-renewables">71.65%</span></div>
+          <div class="kv-row"><span class="kk">EU Taxonomy</span><span class="kv2 green">✓ Disclosed</span></div>
+          <div class="kv-row"><span class="kk">Impact Theme</span><span class="kv2" id="co-theme">Clean Energy</span></div>
+          <div class="kv-row"><span class="kk">Exclusions</span><span class="kv2 green">None detected</span></div>
+        </div>
+      </div>
+
+      <!-- Greenwash flag -->
+      <div class="gw-flag low" id="co-gw">
+        <div class="gwf-title" id="co-gwt">🟢 Low Greenwashing Risk</div>
+        <div class="gwf-body" id="co-gwb">No controversial activities. No UN Global Compact violations.</div>
+      </div>
+
+      <!-- Peer comparison -->
+      <div class="detail-section">
+        <div class="card card-p">
+          <div class="card-title">Peer ESG Comparison</div>
+          <div style="font-size:11px;color:var(--g400);margin-bottom:10px;" id="co-peer-lbl"></div>
+          <div id="co-peers"></div>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div class="detail-section">
+        <div class="insight-card">
+          <div class="insight-title">📈 Market Insights</div>
+          <div class="insight-item" id="co-m1"></div>
+          <div class="insight-item" id="co-m2"></div>
+          <div class="insight-item" id="co-m3"></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-title">🌍 Impact Insights</div>
+          <div class="insight-item" id="co-i1"></div>
+          <div class="insight-item" id="co-i2"></div>
+          <div class="insight-item" id="co-i3"></div>
+        </div>
+      </div>
+
+      <!-- LSEG detail -->
+      <div class="detail-section" style="margin-bottom:24px;">
+        <div class="card card-p">
+          <div class="card-title">LSEG Sustainability Detail</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:var(--g50);padding:10px;border-radius:8px;"><div style="font-size:10px;color:var(--g400);margin-bottom:2px;">ESG Score</div><div style="font-size:15px;font-weight:700;color:var(--green-d);" id="co-esg2">83.60 / A</div></div>
+            <div style="background:var(--g50);padding:10px;border-radius:8px;"><div style="font-size:10px;color:var(--g400);margin-bottom:2px;">ESG Combined</div><div style="font-size:15px;font-weight:700;color:var(--g700);" id="co-combined">81.86 / A-</div></div>
+            <div style="background:var(--g50);padding:10px;border-radius:8px;"><div style="font-size:10px;color:var(--g400);margin-bottom:2px;">Controversy Score</div><div style="font-size:15px;font-weight:700;color:var(--g700);" id="co-controversy">80.13 / A-</div></div>
+            <div style="background:var(--g50);padding:10px;border-radius:8px;"><div style="font-size:10px;color:var(--g400);margin-bottom:2px;">Global Rank</div><div style="font-size:15px;font-weight:700;color:var(--g700);" id="co-globalrank">#14 of 648</div></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /company -->
+
+    <!-- ══════════════════════ NEWS ══════════════════════ -->
+    <div class="screen" id="screen-news">
+      <div style="padding:10px 20px 14px;"><div style="font-size:22px;font-weight:800;color:var(--navy);">News Feed</div><div style="font-size:13px;color:var(--g400);margin-top:2px;">Sustainability & market updates</div></div>
+
+      <div style="overflow-x:auto;display:flex;gap:7px;padding:0 20px;margin-bottom:14px;">
+        <button class="chip active" style="flex-shrink:0;" onclick="toggleChip(this,'news')">All</button>
+        <button class="chip" style="flex-shrink:0;" onclick="toggleChip(this,'news')">Climate</button>
+        <button class="chip" style="flex-shrink:0;" onclick="toggleChip(this,'news')">Regulation</button>
+        <button class="chip" style="flex-shrink:0;" onclick="toggleChip(this,'news')">Market</button>
+        <button class="chip" style="flex-shrink:0;" onclick="toggleChip(this,'news')">Your Holdings</button>
+      </div>
+
+      <div class="news-card">
+        <span class="n-tag nt-market">Market</span>
+        <div class="n-headline">Schneider Electric Reports Record Q2 on Data Centre Boom</div>
+        <div class="n-body">Q2 revenues of €11.8B, up 14% organically. Data centre energy management and grid electrification driving growth. Full-year guidance raised.</div>
+        <div class="n-meta"><span>Bloomberg · 8h ago</span><span class="n-holding">Your holding: SU</span></div>
+      </div>
+      <div class="news-card">
+        <span class="n-tag nt-reg">Regulatory</span>
+        <div class="n-headline">ESMA Finalises SFDR Level 2 Standards for 2026</div>
+        <div class="n-body">Article 9 fund managers face stricter PAI disclosure from January 2026. Benefits companies with strong LSEG ESG scores — like those in your Kin portfolio.</div>
+        <div class="n-meta"><span>Financial Times · 5h ago</span><span>📋 Regulatory alert</span></div>
+      </div>
+      <div class="news-card">
+        <span class="n-tag nt-energy">Clean Energy</span>
+        <div class="n-headline">Vestas Secures 800MW German Offshore Wind Order</div>
+        <div class="n-body">Vestas announced an 800MW firm order in the German North Sea — the company's largest single order of 2025. Strong SDG 7 and SDG 13 alignment.</div>
+        <div class="n-meta"><span>Vestas IR · 12h ago</span><span class="n-holding">Your holding: VWS</span></div>
+      </div>
+      <div class="news-card">
+        <span class="n-tag nt-climate">Climate</span>
+        <div class="n-headline">EU Carbon Price Hits €70 on Summer Heatwave</div>
+        <div class="n-body">ETS carbon allowances surged to €70.40 amid record Southern European temperatures. Your portfolio has zero exposure to high-carbon companies.</div>
+        <div class="n-meta"><span>Reuters · 2h ago</span><span class="n-holding">✅ No impact on you</span></div>
+      </div>
+      <div class="news-card">
+        <span class="n-tag nt-soc">Social Impact</span>
+        <div class="n-headline">Novo Nordisk Expands Insulin Access in Sub-Saharan Africa</div>
+        <div class="n-body">Cost-price insulin committed to 45 low-income countries through 2030. Reaches 5M additional patients. Analysts expect social pillar score improvement.</div>
+        <div class="n-meta"><span>Reuters · 1d ago</span><span class="n-holding">Your holding: NOVO-B</span></div>
+      </div>
+      <div class="news-card" style="margin-bottom:24px;">
+        <span class="n-tag nt-reg">ESG Data</span>
+        <div class="n-headline">LSEG Updates ESG Methodology: Controversy Weight Rises</div>
+        <div class="n-body">Clean controversy records — including all your Kin holdings — expected to see 1–3 point ESG score improvements effective Q4 2025.</div>
+        <div class="n-meta"><span>LSEG · 2d ago</span><span class="n-holding">📊 Good for your portfolio</span></div>
+      </div>
+    </div><!-- /news -->
+
+  </div><!-- /scroll area -->
+
+  <!-- Bottom tab bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
+      <div class="tab-icon">🏠</div>
+      <div class="tab-label">Home</div>
+    </div>
+    <div class="tab-item" id="tab-explore" onclick="switchTab('explore')">
+      <div class="tab-icon">🔍</div>
+      <div class="tab-label">Explore</div>
+    </div>
+    <div class="tab-item" id="tab-news" onclick="switchTab('news')">
+      <div class="tab-icon">📰</div>
+      <div class="tab-label">News</div>
+    </div>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<script>
+const CD = {
+  schneider:{name:'Schneider Electric',sub:'SU · Euronext Paris · Industrials · France',esg:'83.6',grade:'Grade A',rank:'#2 of 10 peers · France · #14 of 648 globally',e:'69.0',s:'92.6',g:'89.3',ep:69,sp:92.6,gp:89.3,mktcap:'$191.2B',rev:'$45.4B',pe:'39.6×',div:'1.45%',perf:'+18.4%',carbon:'Low · 110.91 / revenue',greenrev:'74%',renewables:'71.65%',theme:'Clean Energy · Climate',sdgs:['SDG 7','SDG 9','SDG 13'],gwClass:'low',gwt:'🟢 Low Greenwashing Risk',gwb:'No controversial business activities. No UN Global Compact violations. Watch: anti-competition controversy FY2024. Controversy score 80.13 / A-.',peerLbl:'Machinery & Industrials — France',peers:[['Schneider ★',83.6,true],['ABB',79,false],['Siemens',76.4,false],['Eaton',71.2,false],['Legrand',68.1,false],['Honeywell',62.3,false]],esg2:'83.60 / A',combined:'81.86 / A-',controversy:'80.13 / A-',globalrank:'#14 of 648',lseg:'Combined 81.86 / A-\nControversy 80.13 / A-\nGlobal rank #14 of 648',m1:'Strong YTD on data centre demand & electrification themes.',m2:'Next earnings: 30 July 2026. Consensus: Buy (18 analysts).',m3:'AI power management a key growth theme for 2026.',i1:'LSEG ESG Score 83.6 / A — #2 of 10 peers in France.',i2:'Green revenues 74% — 64.6% Tier 1 environmental benefit.',i3:'Social pillar 92.6 is peer-leading. Governance 89.3.'},
+  vestas:{name:'Vestas Wind Systems',sub:'VWS · Nasdaq Copenhagen · Energy · Denmark',esg:'88.1',grade:'Grade A+',rank:'#1 of 12 Wind Energy peers globally',e:'91.2',s:'84.3',g:'88.7',ep:91.2,sp:84.3,gp:88.7,mktcap:'$18.4B',rev:'$17.2B',pe:'28.4×',div:'0.0%',perf:'+8.7%',carbon:'Very Low · 12.3',greenrev:'98%',renewables:'100%',theme:'Climate · Clean Energy',sdgs:['SDG 7','SDG 13'],gwClass:'low',gwt:'🟢 Low Greenwashing Risk',gwb:'No controversial activities. Top 5% globally for environmental transparency. No UN Global Compact violations.',peerLbl:'Wind Energy peers — Global',peers:[['Vestas ★',88.1,true],['Ørsted',79.4,false],['Siemens Gamesa',74.2,false],['EDP Renováveis',71.3,false],['Nordex',68.8,false],['Envision',58.2,false]],esg2:'88.10 / A+',combined:'86.44 / A',controversy:'84.2 / A',globalrank:'#1 of 12',lseg:'Combined 86.44 / A\nControversy 84.2 / A\nGlobal rank #1 of 12',m1:'800MW offshore order in Germany — largest single order 2025.',m2:'Full-year guidance raised. Backlog at record €21B.',m3:'Denmark pledges additional wind capacity targets for 2030.',i1:'LSEG ESG Score 88.1 / A+ — #1 of 12 wind energy peers.',i2:'100% renewable energy in own operations.',i3:'Environmental pillar 91.2 — top 2% of global energy sector.'},
+  novo:{name:'Novo Nordisk',sub:'NOVO-B · Nasdaq Copenhagen · Healthcare · Denmark',esg:'81.2',grade:'Grade A',rank:'#2 of 14 Pharma peers · Denmark',e:'74.3',s:'91.4',g:'77.8',ep:74.3,sp:91.4,gp:77.8,mktcap:'$312.8B',rev:'$38.2B',pe:'32.4×',div:'1.1%',perf:'+6.8%',carbon:'Low · 88.2',greenrev:'22%',renewables:'61%',theme:'Healthcare Access · Inclusion',sdgs:['SDG 3','SDG 5'],gwClass:'low',gwt:'🟢 Low Greenwashing Risk',gwb:'No controversial activities. Strong healthcare access in low-income countries. No UN Global Compact violations. Top 5 globally for social pillar.',peerLbl:'Pharmaceuticals peers — Europe',peers:[['AstraZeneca',84.2,false],['Novo ★',81.2,true],['Roche',78.9,false],['Sanofi',72.4,false],['Novartis',70.1,false],['GSK',68.8,false]],esg2:'81.20 / A',combined:'79.84 / A-',controversy:'78.1 / B+',globalrank:'#8 of 142',lseg:'Combined 79.84 / A-\nControversy 78.1 / B+\nGlobal rank #8 of 142',m1:'Q2 GLP-1 revenues exceeded expectations at $12.4B.',m2:'Insulin access to 45 low-income countries through 2030.',m3:'Ozempic demand: 15%+ revenue CAGR expected.',i1:'LSEG ESG Score 81.2 / A — #2 of 14 pharma peers in DK.',i2:'Social pillar 91.4 — driven by healthcare access programmes.',i3:'Renewables 61%, committed to 100% by 2030.'},
+  asml:{name:'ASML Holding',sub:'ASML · Euronext Amsterdam · Technology · Netherlands',esg:'72.8',grade:'Grade B+',rank:'#4 of 18 Semiconductor Equipment peers globally',e:'68.2',s:'74.1',g:'76.2',ep:68.2,sp:74.1,gp:76.2,mktcap:'$260.4B',rev:'$28.7B',pe:'41.2×',div:'0.8%',perf:'+21.3%',carbon:'Medium · 210.4',greenrev:'12%',renewables:'38%',theme:'Innovation · Technology',sdgs:['SDG 9'],gwClass:'med',gwt:'🟡 Medium Greenwashing Risk',gwb:'Anti-competition controversy flagged FY2024. No UN Global Compact violations. Supply chain transparency below sector average. Controversy score 64.2 / B+.',peerLbl:'Semiconductor Equipment — Global',peers:[['Applied Mat.',78.2,false],['KLA Corp',75.8,false],['Lam Research',74.4,false],['ASML ★',72.8,true],['Tokyo Electron',68.1,false],['Entegris',61.4,false]],esg2:'72.80 / B+',combined:'68.42 / B',controversy:'64.2 / B+',globalrank:'#4 of 18',lseg:'Combined 68.42 / B\nControversy 64.2 / B+\nGlobal rank #4 of 18',m1:'Record EUV orders — AI chip demand drives +21% YTD.',m2:'Export control risk to China is key watch item.',m3:'High-NA EUV ramp expected H1 2026.',i1:'LSEG ESG Score 72.8 / B+ — improving from 68.1 in FY2023.',i2:'Renewables only 38% — committed to 100% by 2028.',i3:'Governance 76.2 strong; supply chain transparency lags peers.'},
+  orsted:{name:'Ørsted',sub:'ORSTED · Nasdaq Copenhagen · Energy · Denmark',esg:'79.4',grade:'Grade A-',rank:'#3 of 12 Renewable Energy peers globally',e:'88.4',s:'74.1',g:'75.6',ep:88.4,sp:74.1,gp:75.6,mktcap:'$22.1B',rev:'$14.8B',pe:'22.1×',div:'1.2%',perf:'-2.1%',carbon:'Very Low · 8.4',greenrev:'96%',renewables:'98%',theme:'Clean Energy · Biodiversity',sdgs:['SDG 7','SDG 13','SDG 15'],gwClass:'low',gwt:'🟢 Low Greenwashing Risk',gwb:'Strong environmental transparency. Historic issue resolved FY2023. No current UN Global Compact violations. Environmental pillar 88.4 — sector-leading.',peerLbl:'Renewable Energy peers — Global',peers:[['Vestas',88.1,false],['Iberdrola',84.9,false],['Ørsted ★',79.4,true],['EDP',76.2,false],['SSE',72.8,false],['RWE',64.3,false]],esg2:'79.40 / A-',combined:'77.12 / B+',controversy:'74.8 / B+',globalrank:'#3 of 12',lseg:'Combined 77.12 / B+\nControversy 74.8 / B+\nGlobal rank #3 of 12',m1:'US offshore impairments weigh on share price YTD.',m2:'European pipeline strong: 4.8GW under construction.',m3:'Biodiversity net-gain commitments on all new projects.',i1:'LSEG ESG Score 79.4 / A- — environmental pillar 88.4 leads sector.',i2:'96% green revenues, 98% renewable energy in own operations.',i3:'SDG 15 alignment through biodiversity commitments.'},
+  iberdrola:{name:'Iberdrola',sub:'IBE · BME Madrid · Utilities · Spain',esg:'84.9',grade:'Grade A',rank:'#1 of 8 Renewable Utilities peers · Spain',e:'88.7',s:'80.4',g:'85.6',ep:88.7,sp:80.4,gp:85.6,mktcap:'$88.3B',rev:'$43.1B',pe:'18.4×',div:'3.8%',perf:'+12.4%',carbon:'Low · 68.3',greenrev:'82%',renewables:'82%',theme:'Clean Energy · Climate',sdgs:['SDG 7','SDG 13'],gwClass:'low',gwt:'🟢 Low Greenwashing Risk',gwb:'Strong green revenue transparency. EU Taxonomy aligned. No controversial activities. Top 3 globally for environmental pillar in utilities.',peerLbl:'Renewable Utilities peers — Europe',peers:[['Iberdrola ★',84.9,true],['Ørsted',79.4,false],['EDP',76.2,false],['Enel',73.8,false],['RWE',64.3,false],['E.ON',62.1,false]],esg2:'84.90 / A',combined:'82.64 / A-',controversy:'81.2 / A-',globalrank:'#2 of 48',lseg:'Combined 82.64 / A-\nControversy 81.2 / A-\nGlobal rank #2 of 48',m1:'Record 4.2GW renewables capacity added in 2025.',m2:'Spain grid investment expected €12B by 2027.',m3:'Dividend yield 3.8% — among highest in EU utilities.',i1:'LSEG ESG Score 84.9 / A — #1 of 8 peers in Spain.',i2:'Green revenues 82%, renewables 82% in own operations.',i3:'Governance 85.6 — fully transparent on EU Taxonomy alignment.'}
+};
+
+let prevTab='home';
+
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('scroll-area').scrollTop=0;
+  if(tab!=='company') prevTab=tab;
+}
+
+function showCo(key) {
+  const d=CD[key]; if(!d) return;
+  document.getElementById('co-name').textContent=d.name;
+  document.getElementById('co-sub').textContent=d.sub;
+  document.getElementById('co-esg').textContent=d.esg;
+  document.getElementById('co-grade').textContent=d.grade;
+  document.getElementById('co-rank').textContent=d.rank;
+  document.getElementById('co-e').textContent=d.e;
+  document.getElementById('co-s').textContent=d.s;
+  document.getElementById('co-g').textContent=d.g;
+  document.getElementById('co-ebar').style.width=d.ep+'%';
+  document.getElementById('co-sbar').style.width=d.sp+'%';
+  document.getElementById('co-gbar').style.width=d.gp+'%';
+  document.getElementById('co-mktcap').textContent=d.mktcap;
+  document.getElementById('co-rev').textContent=d.rev;
+  document.getElementById('co-pe').textContent=d.pe;
+  document.getElementById('co-div').textContent=d.div;
+  document.getElementById('co-perf').textContent=d.perf;
+  document.getElementById('co-carbon').textContent=d.carbon;
+  document.getElementById('co-greenrev').textContent=d.greenrev;
+  document.getElementById('co-renewables').textContent=d.renewables;
+  document.getElementById('co-theme').textContent=d.theme;
+  document.getElementById('co-sdgs').innerHTML=d.sdgs.map(s=>`<span class="co-sdg">${s}</span>`).join('');
+  const gw=document.getElementById('co-gw');
+  gw.className='gw-flag '+d.gwClass;
+  document.getElementById('co-gwt').textContent=d.gwt;
+  document.getElementById('co-gwb').textContent=d.gwb;
+  document.getElementById('co-peer-lbl').textContent=d.peerLbl;
+  document.getElementById('co-peers').innerHTML=d.peers.map(([n,v,hi])=>`<div class="peer-item"><div class="peer-name" style="${hi?'font-weight:700;color:var(--green-d);':''}">${n}</div><div class="peer-bg"><div class="peer-fill${hi?' me':''}" style="width:${v}%"></div></div><div class="peer-val">${v}</div></div>`).join('');
+  document.getElementById('co-esg2').textContent=d.esg2;
+  document.getElementById('co-combined').textContent=d.combined;
+  document.getElementById('co-controversy').textContent=d.controversy;
+  document.getElementById('co-globalrank').textContent=d.globalrank;
+  if(document.getElementById('co-price') && PRICES[key]) {
+    document.getElementById('co-price').textContent=PRICES[key].price;
+    const chgEl = document.getElementById('co-price-chg');
+    chgEl.textContent=PRICES[key].chg;
+    chgEl.style.color = PRICES[key].chg.startsWith('-') ? 'var(--red)' : 'var(--green-d)';
+  }
+  document.getElementById('co-m1').textContent=d.m1;
+  document.getElementById('co-m2').textContent=d.m2;
+  document.getElementById('co-m3').textContent=d.m3;
+  document.getElementById('co-i1').textContent=d.i1;
+  document.getElementById('co-i2').textContent=d.i2;
+  document.getElementById('co-i3').textContent=d.i3;
+  document.getElementById('co-lseg-detail').textContent=d.lseg;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-company').classList.add('active');
+  document.getElementById('scroll-area').scrollTop=0;
+}
+
+function goBack() {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+prevTab).classList.add('active');
+}
+
+function toggleChip(btn,group) {
+  const siblings=btn.parentElement.querySelectorAll('.chip:not(.excl)');
+  siblings.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleTheme(btn) {
+  if(btn.textContent.includes('All')) {
+    btn.parentElement.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    const allBtn=btn.parentElement.querySelector('.chip');
+    allBtn.classList.remove('active');
+    btn.classList.toggle('active');
+  }
+}
+
+function setPeriod(btn) {
+  document.querySelectorAll('.ct-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+
+const PRICES = {
+  schneider: {price:'€224.80', chg:'+18.4% YTD'},
+  vestas:    {price:'€147.30', chg:'+8.7% YTD'},
+  novo:      {price:'€882.60', chg:'+6.8% YTD'},
+  asml:      {price:'€742.40', chg:'+21.3% YTD'},
+  orsted:    {price:'€94.20',  chg:'-2.1% YTD'},
+  iberdrola: {price:'€14.18',  chg:'+12.4% YTD'},
+};
+function setPricePeriod(btn, period) {
+  document.querySelectorAll('#price-tabs .ct-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function filterResults(q) {
+  const lq=q.toLowerCase();
+  document.querySelectorAll('.result-card').forEach(c=>{
+    c.style.display=c.textContent.toLowerCase().includes(lq)?'':'none';
+  });
+}
+</script>
+</body>
+</html>
